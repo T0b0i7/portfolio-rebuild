@@ -34,8 +34,7 @@ app/
 components/
   site-header.tsx             nav sticky, blur au scroll, Search, thème, ⌘K/Ctrl K détecté
   command-palette.tsx         ⌘K + "/", fetch de l'index, ↑↓/Enter/Esc, body lock
-  theme-toggle.tsx            light → system → dark persisté + écoute prefers-color-scheme
-                              (bootstrap anti-FOUC dans public/theme-init.js, pas en inline)
+  theme-toggle.tsx            light → system → dark persisté (classes .light/.dark, aucun script)
   parallax.tsx                rAF, --scroll / --pointer-x / --pointer-y, reduced-motion
   reveal.tsx                  IntersectionObserver → data-visible (fallback no-JS)
   work-section.tsx            8 filtres, carrousel snap, Go to <projet>, prev/next, aria-live
@@ -51,7 +50,6 @@ lib/
   pages-content.ts            uses, bucket list, guestbook seed, links
   search-index.ts             projection des données → index de recherche
 public/icons/sprite.svg       sprite unique (search, sun, moon, monitor, arrows, copy, check)
-public/theme-init.js          bootstrap de thème (externe : immunisé contre l'injection d'extensions)
 ```
 
 ## Correspondance avec PLAN.md
@@ -60,7 +58,7 @@ public/theme-init.js          bootstrap de thème (externe : immunisé contre l'
 |---|---|---|
 | Next.js 16 App Router, RSC | ✅ | `app/` en server components, interactif isolé en `"use client"` |
 | CSS | ✅ | Tailwind v4 + tokens `@theme inline` sur variables CSS oklch |
-| Thème `dark:` | ✅ | `@custom-variant dark` piloté par `.dark` + `public/theme-init.js` chargé en `<head>` avant peinture |
+| Thème `dark:` | ✅ | `light-dark()` + `color-scheme` piloté par `.light` / `.dark` : suit l'OS sans JavaScript, aucun `<script>` en `<head>` (immunise l'hydratation contre les extensions) |
 | Fonts self-hosted | ✅ | `next/font` (Inter, JetBrains Mono) → woff2 servis depuis `/_next/static/media`, zéro appel Google |
 | Images AVIF | ✅ | `images.formats` + `opengraph-image.tsx` (PNG généré) ; covers projets encore en dégradés CSS |
 | Sprite SVG unique | ✅ | `public/icons/sprite.svg` + `<Icon />` |
@@ -79,7 +77,56 @@ Hors `outline.md`, ajouté parce que présent sur le site source ou nécessaire 
 `/uses`, `/guestbook`, `/bucket-list`, `/links`, `/services`, `sitemap.xml`, `robots.txt`, `feed.xml`,
 `opengraph-image`, 404.
 
+## NaviGarde IA — export PDF réglementaire & versioning (EF-35)
+
+Module isolé, sans effet sur le rendu du portfolio. Routes montées sous `/api/v1/reports`.
+
+```
+src/ai/reportTemplate.js        structure administrative (en-tête, métadonnées, constatations, sceau)
+src/server/report-types.ts      types Report / Finding / ReportPatch
+src/server/report-store.ts      dépôt en mémoire + SHA-256 canonique + clone de version
+src/server/report-pdf.ts        rendu A4 pdf-lib (en-tête, tableau, constatations, sceau, QR)
+src/server/pdf-kit.ts           wrap texte, sections, filets (polices standard = pas de layout auto)
+src/server/http.ts              origine publique (QR), erreurs JSON
+
+app/api/v1/reports/route.ts               GET liste · POST création (201, Location)
+app/api/v1/reports/[id]/route.ts          GET · PATCH (EF-35)
+app/api/v1/reports/[id]/download/route.ts GET → application/pdf
+app/verify/[id]/page.tsx                  page publique cible du QR (noindex)
+
+tests/smoke-pdf.mjs             34 assertions bout-en-bout
+```
+
+```bash
+npm run build && npm start     # terminal 1
+npm run test:smoke             # terminal 2 (BASE_URL, défaut http://localhost:3000)
+node tests/smoke-pdf.mjs --base http://localhost:3111
+```
+
+### Contrat
+
+| Méthode | Route | Comportement |
+|---|---|---|
+| `GET` | `/api/v1/reports` | liste (id, référence, version, statut, hash) |
+| `POST` | `/api/v1/reports` | crée v1 en `brouillon` (ou `validé`) |
+| `GET` | `/api/v1/reports/:id` | rapport complet + historique |
+| `PATCH` | `/api/v1/reports/:id` | brouillon → mise à jour en place (200) ; **validé → clone v(n+1) en `brouillon` (201)**, l'original reste intact et pointe via `supersededBy` |
+| `GET` | `/api/v1/reports/:id/download` | PDF généré à la volée |
+
+En-têtes de traçabilité : `X-Report-Reference`, `X-Report-Version`, `X-Report-Hash`,
+`X-Versioning: in-place|cloned`, `Content-Disposition: attachment; filename="navigarde-<ref>-v<n>.pdf"`.
+
+### PDF
+
+- En-tête officiel (bandeau, unité, adresse), référence et version en clair.
+- Métadonnées administratives sur deux colonnes, bandeau de synthèse (total / critiques / majeures / mineures).
+- Constatations numérotées : sévérité colorée, détail justifié, preuve en police monospace, confiance IA.
+- **Sceau de souveraineté numérique** en pied de page : empreinte SHA-256 en monospace, URL de vérification, QR généré par `qrcode`, horodatage.
+- Pagination, `Content-Type: application/pdf`, PDF parseable (titres PDF renseignés).
+- `npm run test:smoke` → 34/34 : type MIME, signature `%PDF-`, parsing pdf-lib, versioning, 404/400.
+
 ## Vérifications
+
 
 ```
 next build      → 21 routes statiques, 0 erreur TS

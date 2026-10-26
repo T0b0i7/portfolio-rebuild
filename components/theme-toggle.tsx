@@ -19,39 +19,39 @@ const GLYPH: Record<Mode, string> = {
 
 function apply(mode: Mode) {
   const root = document.documentElement;
-  const dark =
-    mode === "dark" ||
-    (mode === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  root.classList.toggle("dark", dark);
-  root.style.colorScheme = dark ? "dark" : "light";
+  root.classList.toggle("dark", mode === "dark");
+  root.classList.toggle("light", mode === "light");
 }
 
-/** Loads the pre-paint theme bootstrap from /theme-init.js (see that file). */
-export function ThemeScript() {
-  return <script src="/theme-init.js" />;
+// Runs when this client module is evaluated (hydration), not during render:
+// no `<script>` in <head>, so extensions cannot desync the markup.
+if (typeof document !== "undefined") {
+  try {
+    apply((localStorage.getItem(STORAGE_KEY) as Mode | null) ?? "system");
+  } catch {
+    /* storage blocked: keep the OS default from CSS */
+  }
 }
 
 export function ThemeToggle() {
   const [mode, setMode] = useState<Mode>("system");
-  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Mode | null) ?? "system";
-    setMode(stored);
-    setReady(true);
-
-    const media = window.matchMedia("(prefers-color-scheme: dark)");
-    const onChange = () => {
-      if ((localStorage.getItem(STORAGE_KEY) as Mode | null) === "system") apply("system");
-    };
-    media.addEventListener("change", onChange);
-    return () => media.removeEventListener("change", onChange);
+    try {
+      setMode((localStorage.getItem(STORAGE_KEY) as Mode | null) ?? "system");
+    } catch {
+      /* ignore */
+    }
   }, []);
 
   function cycle() {
     const next = ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
     setMode(next);
-    localStorage.setItem(STORAGE_KEY, next);
+    try {
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch {
+      /* ignore */
+    }
     apply(next);
   }
 
@@ -62,7 +62,6 @@ export function ThemeToggle() {
       className="grid size-9 place-items-center rounded-full border border-line text-muted transition-colors hover:border-fg/40 hover:text-fg"
       aria-label={`${LABEL[mode]} — change theme`}
       title={LABEL[mode]}
-      data-ready={ready}
     >
       <Icon name={GLYPH[mode]} size={15} />
     </button>

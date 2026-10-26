@@ -1,38 +1,102 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
+/* Theme: CSS-only. `light-dark()` follows the OS by default (no pre-paint script,
+   which browser extensions rewrite and thereby break hydration). An explicit
+   choice only sets color-scheme through the .light / .dark classes. */
 :root {
-  --bg: oklch(0.985 0.002 90);
-  --bg-elevated: oklch(1 0 0);
-  --fg: oklch(0.19 0.012 265);
-  --muted: oklch(0.48 0.014 265);
-  --line: oklch(0.88 0.005 265);
-  --accent: oklch(0.52 0.19 28);
-
-  --accent-1: oklch(0.62 0.19 28);
-  --accent-2: oklch(0.58 0.16 250);
-  --accent-3: oklch(0.6 0.15 160);
-  --accent-4: oklch(0.66 0.16 320);
-  --accent-5: oklch(0.64 0.15 70);
-
+  color-scheme: light dark;
+  --bg: var(--l-bg);
+  --bg-elevated: var(--l-bg-elevated);
+  --fg: var(--l-fg);
+  --muted: var(--l-muted);
+  --line: var(--l-line);
+  --accent: var(--l-accent);
+  --accent-1: var(--l-accent-1);
+  --accent-2: var(--l-accent-2);
+  --accent-3: var(--l-accent-3);
+  --accent-4: var(--l-accent-4);
+  --accent-5: var(--l-accent-5);
   --radius: 0.875rem;
   --max: 78rem;
 }
 
-.dark {
-  --bg: oklch(0.16 0.008 265);
-  --bg-elevated: oklch(0.2 0.01 265);
-  --fg: oklch(0.96 0.004 90);
-  --muted: oklch(0.66 0.012 265);
-  --line: oklch(0.3 0.012 265);
-  --accent: oklch(0.72 0.17 40);
+:root.light {
+  color-scheme: light;
+}
 
-  --accent-1: oklch(0.74 0.16 40);
-  --accent-2: oklch(0.72 0.14 250);
-  --accent-3: oklch(0.76 0.14 160);
-  --accent-4: oklch(0.78 0.14 320);
-  --accent-5: oklch(0.8 0.14 80);
+@media (prefers-color-scheme: dark) {
+  :root:not(.light) {
+    color-scheme: dark;
+    --bg: var(--d-bg);
+    --bg-elevated: var(--d-bg-elevated);
+    --fg: var(--d-fg);
+    --muted: var(--d-muted);
+    --line: var(--d-line);
+    --accent: var(--d-accent);
+    --accent-1: var(--d-accent-1);
+    --accent-2: var(--d-accent-2);
+    --accent-3: var(--d-accent-3);
+    --accent-4: var(--d-accent-4);
+    --accent-5: var(--d-accent-5);
+  }
+}
+
+:root.dark {
+  color-scheme: dark;
+  --bg: var(--d-bg);
+  --bg-elevated: var(--d-bg-elevated);
+  --fg: var(--d-fg);
+  --muted: var(--d-muted);
+  --line: var(--d-line);
+  --accent: var(--d-accent);
+  --accent-1: var(--d-accent-1);
+  --accent-2: var(--d-accent-2);
+  --accent-3: var(--d-accent-3);
+  --accent-4: var(--d-accent-4);
+  --accent-5: var(--d-accent-5);
+}
+
+@media (prefers-color-scheme: light) {
+  :root.dark {
+    color-scheme: light;
+    --bg: var(--l-bg);
+    --bg-elevated: var(--l-bg-elevated);
+    --fg: var(--l-fg);
+    --muted: var(--l-muted);
+    --line: var(--l-line);
+    --accent: var(--l-accent);
+    --accent-1: var(--l-accent-1);
+    --accent-2: var(--l-accent-2);
+    --accent-3: var(--l-accent-3);
+    --accent-4: var(--l-accent-4);
+    --accent-5: var(--l-accent-5);
+  }
+}
+
+:root {
+  --l-bg: oklch(0.985 0.002 90);
+  --l-bg-elevated: oklch(1 0 0);
+  --l-fg: oklch(0.19 0.012 265);
+  --l-muted: oklch(0.48 0.014 265);
+  --l-line: oklch(0.88 0.005 265);
+  --l-accent: oklch(0.52 0.19 28);
+  --l-accent-1: oklch(0.62 0.19 28);
+  --l-accent-2: oklch(0.58 0.16 250);
+  --l-accent-3: oklch(0.6 0.15 160);
+  --l-accent-4: oklch(0.66 0.16 320);
+  --l-accent-5: oklch(0.64 0.15 70);
+
+  --d-bg: oklch(0.16 0.008 265);
+  --d-bg-elevated: oklch(0.2 0.01 265);
+  --d-fg: oklch(0.96 0.004 90);
+  --d-muted: oklch(0.66 0.012 265);
+  --d-line: oklch(0.3 0.012 265);
+  --d-accent: oklch(0.72 0.17 40);
+  --d-accent-1: oklch(0.74 0.16 40);
+  --d-accent-2: oklch(0.72 0.14 250);
+  --d-accent-3: oklch(0.76 0.14 160);
+  --d-accent-4: oklch(0.78 0.14 320);
+  --d-accent-5: oklch(0.8 0.14 80);
 }
 
 @theme inline {

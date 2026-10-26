@@ -5,7 +5,6 @@ import { site } from "@/lib/site";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CommandPalette } from "@/components/command-palette";
-import { ThemeScript } from "@/components/theme-toggle";
 
 // next/font self-hosts the woff2 files at build time: no request to Google at runtime.
 const inter = Inter({
@@ -52,7 +51,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning>
       <head>
-        <ThemeScript />
         <noscript>
           <style>{`[data-reveal]{opacity:1 !important;transform:none !important}`}</style>
         </noscript>
