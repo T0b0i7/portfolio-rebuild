@@ -26,10 +26,9 @@ function apply(mode: Mode) {
   root.style.colorScheme = dark ? "dark" : "light";
 }
 
-/** Sets the theme class before first paint to avoid a flash. */
+/** Loads the pre-paint theme bootstrap from /theme-init.js (see that file). */
 export function ThemeScript() {
-  const script = `(function(){try{var m=localStorage.getItem("${STORAGE_KEY}")||"system";var d=m==="dark"||(m==="system"&&matchMedia("(prefers-color-scheme: dark)").matches);var r=document.documentElement;if(d)r.classList.add("dark");r.style.colorScheme=d?"dark":"light";}catch(e){}})();`;
-  return <script dangerouslySetInnerHTML={{ __html: script }} />;
+  return <script src="/theme-init.js" />;
 }
 
 export function ThemeToggle() {

@@ -35,6 +35,7 @@ components/
   site-header.tsx             nav sticky, blur au scroll, Search, thème, ⌘K/Ctrl K détecté
   command-palette.tsx         ⌘K + "/", fetch de l'index, ↑↓/Enter/Esc, body lock
   theme-toggle.tsx            light → system → dark persisté + écoute prefers-color-scheme
+                              (bootstrap anti-FOUC dans public/theme-init.js, pas en inline)
   parallax.tsx                rAF, --scroll / --pointer-x / --pointer-y, reduced-motion
   reveal.tsx                  IntersectionObserver → data-visible (fallback no-JS)
   work-section.tsx            8 filtres, carrousel snap, Go to <projet>, prev/next, aria-live
@@ -50,6 +51,7 @@ lib/
   pages-content.ts            uses, bucket list, guestbook seed, links
   search-index.ts             projection des données → index de recherche
 public/icons/sprite.svg       sprite unique (search, sun, moon, monitor, arrows, copy, check)
+public/theme-init.js          bootstrap de thème (externe : immunisé contre l'injection d'extensions)
 ```
 
 ## Correspondance avec PLAN.md
@@ -58,7 +60,7 @@ public/icons/sprite.svg       sprite unique (search, sun, moon, monitor, arrows,
 |---|---|---|
 | Next.js 16 App Router, RSC | ✅ | `app/` en server components, interactif isolé en `"use client"` |
 | CSS | ✅ | Tailwind v4 + tokens `@theme inline` sur variables CSS oklch |
-| Thème `dark:` | ✅ | `@custom-variant dark` piloté par `.dark` + script inline avant peinture |
+| Thème `dark:` | ✅ | `@custom-variant dark` piloté par `.dark` + `public/theme-init.js` chargé en `<head>` avant peinture |
 | Fonts self-hosted | ✅ | `next/font` (Inter, JetBrains Mono) → woff2 servis depuis `/_next/static/media`, zéro appel Google |
 | Images AVIF | ✅ | `images.formats` + `opengraph-image.tsx` (PNG généré) ; covers projets encore en dégradés CSS |
 | Sprite SVG unique | ✅ | `public/icons/sprite.svg` + `<Icon />` |
