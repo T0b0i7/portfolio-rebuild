@@ -4,24 +4,20 @@ import { posts, projects } from "@/lib/content";
 import { Icon } from "./icon";
 
 const columns = [
-  { title: "WORK", links: projects.slice(0, 3).map((p) => ({ label: p.title, href: `/work/${p.slug}` })) },
+  {
+    title: "WORK",
+    links: projects.slice(0, 3).map((project) => ({
+      label: project.title,
+      href: `/work/${project.slug}`,
+    })),
+  },
   {
     title: "SITE",
-    links: [
-      { label: "Projects", href: "/#work" },
-      { label: "Blog", href: "/#writing" },
-      { label: "About", href: "/#about" },
-      { label: "Uses", href: "/#uses" },
-    ],
+    links: site.pages.filter((page) => !page.href.startsWith("/#")).slice(0, 4),
   },
   {
     title: "SOCIAL",
-    links: [
-      { label: "GitHub", href: "https://github.com" },
-      { label: "LinkedIn", href: "https://linkedin.com" },
-      { label: "X", href: "https://x.com" },
-      { label: "RSS", href: "/feed.xml" },
-    ],
+    links: site.socials,
   },
 ];
 
@@ -65,7 +61,10 @@ export function SiteFooter() {
             © {new Date().getFullYear()} {site.name} — all rights reserved
           </p>
           <p>
-            {projects.length} projects · {posts.length} posts
+            {projects.length} projects · {posts.length} posts ·{" "}
+            <Link href="/feed.xml" className="hover:text-fg">
+              RSS
+            </Link>
           </p>
         </div>
       </div>

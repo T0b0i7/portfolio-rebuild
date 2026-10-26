@@ -23,6 +23,9 @@
   <symbol id="arrow-left" viewBox="0 0 24 24">
     <path d="M20 12H4M11 5l-7 7 7 7" />
   </symbol>
+  <symbol id="check" viewBox="0 0 24 24">
+    <path d="m4 12.5 5 5L20 6.5" />
+  </symbol>
   <symbol id="copy" viewBox="0 0 24 24">
     <rect x="9" y="9" width="11" height="11" rx="2" />
     <path d="M15 6V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h1" />

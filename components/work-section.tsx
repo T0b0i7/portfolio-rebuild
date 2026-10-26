@@ -58,7 +58,6 @@ export function WorkSection() {
             Products I designed, built and shipped — filters narrow the set by discipline and market.
           </p>
         </header>
-
         <div
           role="group"
           aria-label="Filter projects"

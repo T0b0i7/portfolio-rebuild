@@ -43,8 +43,8 @@
   --color-line: var(--line);
   --color-accent: var(--accent);
 
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "JetBrains Mono", Menlo, monospace;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SF Mono", "Cascadia Mono", Menlo, monospace;
 
   --radius-card: var(--radius);
 }
@@ -194,6 +194,36 @@
 
   .reveal {
     animation: reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Scroll-reveal: driven by <Reveal /> via data-visible */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition:
+      opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  [data-reveal][data-visible="true"] {
+    opacity: 1;
+    transform: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
+  /* Content must stay readable if scripting is unavailable. */
+  @media (scripting: none) {
+    [data-reveal] {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   @keyframes reveal {

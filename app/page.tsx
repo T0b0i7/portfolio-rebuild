@@ -3,6 +3,8 @@ import { site } from "@/lib/site";
 import { posts } from "@/lib/content";
 import { Icon } from "@/components/icon";
 import { Parallax } from "@/components/parallax";
+import { Reveal } from "@/components/reveal";
+import { CopyEmail } from "@/components/copy-email";
 import { WorkSection } from "@/components/work-section";
 import { RevealPhoto } from "@/components/reveal-photo";
 
@@ -74,13 +76,15 @@ export default function HomePage() {
           </div>
 
           <dl className="mt-16 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-4">
-            {status.map((item) => (
-              <div key={item.label} className="bg-bg px-4 py-4">
-                <dt className="font-mono text-[0.6rem] tracking-[0.16em] uppercase text-muted">
-                  {item.label}
-                </dt>
-                <dd className="mt-1.5 text-sm">{item.value}</dd>
-              </div>
+            {status.map((item, index) => (
+              <Reveal key={item.label} delay={index * 60} className="bg-bg">
+                <div className="px-4 py-4">
+                  <dt className="font-mono text-[0.6rem] tracking-[0.16em] uppercase text-muted">
+                    {item.label}
+                  </dt>
+                  <dd className="mt-1.5 text-sm">{item.value}</dd>
+                </div>
+              </Reveal>
             ))}
           </dl>
         </div>
@@ -92,7 +96,7 @@ export default function HomePage() {
       {/* 4 — Profil */}
       <section id="about" aria-labelledby="about-title" className="scroll-mt-20 border-t border-line py-20 md:py-28">
         <div className="shell grid gap-12 lg:grid-cols-[1fr_1.2fr]">
-          <div>
+          <Reveal>
             <p className="eyebrow">02 — Profile</p>
             <h2 id="about-title" className="h2 mt-3">
               Engineer, end to end
@@ -100,9 +104,9 @@ export default function HomePage() {
             <div className="mt-6">
               <RevealPhoto />
             </div>
-          </div>
+          </Reveal>
 
-          <div className="space-y-6">
+          <Reveal delay={80} className="space-y-6">
             <p className="text-lg leading-relaxed">
               I build the whole path a request travels: the interface, the API contract, the
               data layer and the guardrails that keep it honest in production.
@@ -130,7 +134,7 @@ export default function HomePage() {
                 Laptop, 24GB, 1TB · Ghostty · herdr · VS Code · Linear · Obsidian · 1Password
               </p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
@@ -150,8 +154,8 @@ export default function HomePage() {
           </header>
 
           <ul className="mt-10 grid gap-4 md:grid-cols-3">
-            {posts.map((post) => (
-              <li key={post.slug}>
+            {posts.map((post, index) => (
+              <Reveal as="li" key={post.slug} delay={index * 70}>
                 <Link
                   href={`/writing/${post.slug}`}
                   className="card group flex h-full flex-col gap-4 p-5 transition-transform hover:-translate-y-1"
@@ -177,7 +181,7 @@ export default function HomePage() {
                     />
                   </p>
                 </Link>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>
@@ -192,41 +196,40 @@ export default function HomePage() {
           </h2>
 
           <div className="mt-10 grid gap-4 md:grid-cols-2">
-            <a
-              href={`mailto:${site.email}`}
-              className="card group flex flex-col justify-between gap-16 p-6 transition-colors hover:border-fg/40"
-            >
-              <div>
-                <p className="eyebrow">GOT AN IDEA WORTH BUILDING?</p>
-                <p className="mt-4 text-2xl tracking-tight">Send a brief</p>
+            <Reveal>
+              <div className="card group flex h-full flex-col justify-between gap-16 p-6 transition-colors hover:border-fg/40">
+                <div>
+                  <p className="eyebrow">GOT AN IDEA WORTH BUILDING?</p>
+                  <p className="mt-4 text-2xl tracking-tight">Send a brief</p>
+                </div>
+                <div className="flex flex-wrap items-center justify-between gap-3 text-sm">
+                  <a href={`mailto:${site.email}`} className="link-underline">
+                    {site.email}
+                  </a>
+                  <CopyEmail email={site.email} />
+                </div>
               </div>
-              <span className="flex items-center justify-between text-sm">
-                {site.email}
-                <Icon
-                  name="arrow-up-right"
-                  size={16}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </span>
-            </a>
+            </Reveal>
 
-            <Link
-              href="/#work"
-              className="card group flex flex-col justify-between gap-16 p-6 transition-colors hover:border-fg/40"
-            >
-              <div>
-                <p className="eyebrow">LET&apos;S TALK IT THROUGH</p>
-                <p className="mt-4 text-2xl tracking-tight">See how I work</p>
-              </div>
-              <span className="flex items-center justify-between text-sm text-muted">
-                Case studies, process, stack
-                <Icon
-                  name="arrow-up-right"
-                  size={16}
-                  className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                />
-              </span>
-            </Link>
+            <Reveal delay={80}>
+              <Link
+                href="/services"
+                className="card group flex h-full flex-col justify-between gap-16 p-6 transition-colors hover:border-fg/40"
+              >
+                <div>
+                  <p className="eyebrow">LET&apos;S TALK IT THROUGH</p>
+                  <p className="mt-4 text-2xl tracking-tight">See how I work</p>
+                </div>
+                <span className="flex items-center justify-between text-sm text-muted">
+                  Engagements, process, rates
+                  <Icon
+                    name="arrow-up-right"
+                    size={16}
+                    className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  />
+                </span>
+              </Link>
+            </Reveal>
           </div>
         </div>
       </section>
