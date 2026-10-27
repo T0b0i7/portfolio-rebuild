@@ -49,12 +49,11 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning>
-      <head>
+    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning><head>
         <noscript>
           <style>{`[data-reveal]{opacity:1 !important;transform:none !important}`}</style>
         </noscript>
-      </head>      <body>
+      </head><body>
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-100 focus:rounded-full focus:bg-fg focus:px-4 focus:py-2 focus:text-sm focus:text-bg"
@@ -65,7 +64,6 @@ export default function RootLayout({
         <main id="main">{children}</main>
         <SiteFooter />
         <CommandPalette />
-      </body>
-    </html>
+      </body></html>
   );
 }
