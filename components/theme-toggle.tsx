@@ -3,67 +3,75 @@
 import { useEffect, useState } from "react";
 import { Icon } from "./icon";
 
-type Mode = "light" | "dark" | "system";
-const STORAGE_KEY = "theme";
-const ORDER: Mode[] = ["light", "system", "dark"];
-const LABEL: Record<Mode, string> = {
-  light: "Light theme",
-  dark: "Dark theme",
-  system: "System theme",
-};
-const GLYPH: Record<Mode, string> = {
-  light: "sun",
-  dark: "moon",
-  system: "monitor",
-};
+type Theme = "light" | "dark";
 
-function apply(mode: Mode) {
+const STORAGE_KEY = "theme";
+
+function apply(theme: Theme) {
   const root = document.documentElement;
-  root.classList.toggle("dark", mode === "dark");
-  root.classList.toggle("light", mode === "light");
+  root.classList.toggle("dark", theme === "dark");
+  root.classList.toggle("light", theme === "light");
 }
 
-// Runs when this client module is evaluated (hydration), not during render:
-// no `<script>` in <head>, so extensions cannot desync the markup.
-if (typeof document !== "undefined") {
+function readTheme(): Theme {
   try {
-    apply((localStorage.getItem(STORAGE_KEY) as Mode | null) ?? "system");
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored === "light" || stored === "dark") return stored;
   } catch {
-    /* storage blocked: keep the OS default from CSS */
+    /* storage blocked: fall back to the OS preference */
   }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function ThemeToggle() {
-  const [mode, setMode] = useState<Mode>("system");
+  const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    try {
-      setMode((localStorage.getItem(STORAGE_KEY) as Mode | null) ?? "system");
-    } catch {
-      /* ignore */
-    }
+    setTheme(readTheme());
+
+    // While no explicit choice is stored, follow the OS live.
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = () => {
+      try {
+        if (localStorage.getItem(STORAGE_KEY)) return;
+      } catch {
+        /* ignore */
+      }
+      setTheme(media.matches ? "dark" : "light");
+    };
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
   }, []);
 
-  function cycle() {
-    const next = ORDER[(ORDER.indexOf(mode) + 1) % ORDER.length];
-    setMode(next);
+  function toggle() {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    apply(next);
     try {
       localStorage.setItem(STORAGE_KEY, next);
     } catch {
       /* ignore */
     }
-    apply(next);
   }
+
+  const dark = theme === "dark";
+  const label = dark ? "Switch to light theme" : "Switch to dark theme";
 
   return (
     <button
       type="button"
-      onClick={cycle}
+      onClick={toggle}
+      aria-label={label}
+      aria-pressed={dark}
+      title={label}
       className="grid size-9 place-items-center rounded-full border border-line text-muted transition-colors hover:border-fg/40 hover:text-fg"
-      aria-label={`${LABEL[mode]} — change theme`}
-      title={LABEL[mode]}
     >
-      <Icon name={GLYPH[mode]} size={15} />
+      <Icon
+        key={theme}
+        name={dark ? "moon" : "monitor"}
+        size={15}
+        className="theme-icon"
+      />
     </button>
   );
 }

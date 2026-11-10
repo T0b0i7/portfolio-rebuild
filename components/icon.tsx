@@ -1,3 +1,5 @@
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 type IconProps = {
   name: string;
   size?: number;
@@ -19,7 +21,7 @@ export function Icon({ name, size = 16, className }: IconProps) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <use href={`/icons/sprite.svg#${name}`} />
+      <use href={`${BASE_PATH}/icons/sprite.svg#${name}`} />
     </svg>
   );
 }

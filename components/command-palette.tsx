@@ -6,6 +6,8 @@ import { OPEN_PALETTE_EVENT } from "./site-header";
 import { Icon } from "./icon";
 import type { SearchEntry } from "@/lib/search-index";
 
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export function CommandPalette() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -20,7 +22,7 @@ export function CommandPalette() {
     if (!open || entries.length > 0) return;
     let cancelled = false;
     setLoading(true);
-    fetch("/search-index.json")
+    fetch(`${BASE_PATH}/search-index.json`)
       .then((res) => (res.ok ? res.json() : []))
       .then((data: SearchEntry[]) => {
         if (!cancelled) setEntries(data);

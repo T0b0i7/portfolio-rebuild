@@ -57,19 +57,8 @@
 }
 
 @media (prefers-color-scheme: light) {
-  :root.dark {
+  :root.light {
     color-scheme: light;
-    --bg: var(--l-bg);
-    --bg-elevated: var(--l-bg-elevated);
-    --fg: var(--l-fg);
-    --muted: var(--l-muted);
-    --line: var(--l-line);
-    --accent: var(--l-accent);
-    --accent-1: var(--l-accent-1);
-    --accent-2: var(--l-accent-2);
-    --accent-3: var(--l-accent-3);
-    --accent-4: var(--l-accent-4);
-    --accent-5: var(--l-accent-5);
   }
 }
 
@@ -130,6 +119,9 @@
     font-feature-settings: "ss01", "cv11";
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+    transition:
+      background-color 0.25s ease,
+      color 0.25s ease;
   }
 
   ::selection {
@@ -218,7 +210,6 @@
     position: relative;
     text-decoration: none;
   }
-
   .link-underline::after {
     content: "";
     position: absolute;
@@ -294,6 +285,22 @@
     from {
       opacity: 0;
       transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Dark-mode icon flips to its other face on each toggle. */
+  .theme-icon {
+    animation: theme-flip 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes theme-flip {
+    from {
+      opacity: 0;
+      transform: rotate(-90deg) scale(0.6);
     }
     to {
       opacity: 1;

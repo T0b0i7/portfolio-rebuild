@@ -1,147 +1,274 @@
 # portfolio-rebuild
 
-Reproduction de l'**architecture** décrite dans `PLAN.md` (structure, techniques d'animation,
-modèle de données). Tout le contenu — nom, projets, articles, palette, logo — est un placeholder
-à remplacer. Voir « À ne pas reprendre » dans `PLAN.md`.
+[![CI](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/ci.yml/badge.svg)](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/ci.yml)
+[![Deploy](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/deploy.yml/badge.svg)](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/deploy.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org)
+
+Template de portfolio **open source**, prêt à déployer sur **GitHub Pages**. Un site entièrement
+statique — aucune base de données, aucun serveur — avec une navigation rapide, une recherche au
+clavier et un **mode sombre** déclenché par une icône qui bascule de l'écran au croissant de lune.
+
+Site de démonstration : **https://t0b0i7.github.io/portfolio-rebuild/**
+
+---
+
+## Sommaire
+
+- [Aperçu](#aperçu)
+- [Fonctionnalités](#fonctionnalités)
+- [Stack](#stack)
+- [Démarrer](#démarrer)
+- [Mode sombre](#mode-sombre)
+- [Personnaliser le template](#personnaliser-le-template)
+- [Structure du projet](#structure-du-projet)
+- [Déploiement GitHub Pages](#déploiement-github-pages)
+- [CI/CD](#cicd)
+- [SEO, performance et accessibilité](#seo-performance-et-accessibilité)
+- [Scripts](#scripts)
+- [Contribuer](#contribuer)
+- [Licence](#licence)
+
+---
+
+## Aperçu
+
+Un portfolio complet, pensé pour être dupliqué puis personnalisé en quelques minutes :
+
+- **6 sections sur la page d'accueil** : introduction, projets, profil, articles, contact, footer.
+- **Pages secondaires** : `/uses`, `/services`, `/guestbook`, `/bucket-list`, `/links`.
+- **Pages de détail** générées statiquement pour chaque projet (`/work/[slug]`) et chaque article
+  (`/writing/[slug]`).
+- **Recherche instantanée** (`⌘K` / `Ctrl K` ou `/`) alimentée par un index JSON statique.
+- **Build 100 % statique** exporté dans `out/` : aucun runtime Node en production.
+- **CI/CD GitHub Actions** : vérification TypeScript + build à chaque push/PR, déploiement
+  automatique sur GitHub Pages depuis `master`.
+- **Mode sombre** accessible en un clic, mémorisé dans le navigateur, sans flash au chargement.
+
+Tout le contenu (nom, projets, articles, liens, palette) est factice : remplacez-le par le vôtre.
+Le design et le code peuvent être réutilisés librement sous licence MIT.
+
+## Fonctionnalités
+
+| Fonctionnalité | Détails |
+|---|---|
+| Rendu statique | `output: "export"`, 21 routes prérendues, hébergement sans serveur |
+| App Router / RSC | Server Components par défaut, interactivité isolée en `"use client"` |
+| Recherche `⌘K` | Palette accessible au clavier, résultats groupés, fermeture `Échap`, verrouillage du scroll |
+| Filtres projets | 8 filtres, carrousel à défilement aimanté, navigation précédent/suivant, `aria-live` |
+| Parallax | Scroll + pointeur via `requestAnimationFrame`, désactivé si `prefers-reduced-motion` |
+| Reveal au scroll | `IntersectionObserver`, fallback CSS sans JavaScript |
+| Tarifs animés | Bascule mensuel/annuel avec chiffres roulants (`/services`) |
+| Copie d'email | Presse-papiers + confirmation accessible |
+| Guestbook local | Formulaire persistant dans `localStorage` (aucun backend requis) |
+| Thème clair/sombre | Icône écran ↔ lune, préférence système par défaut, choix mémorisé |
+| SEO | `sitemap.xml`, `robots.txt`, flux RSS, image Open Graph générée, balises canoniques |
+| Typographie | Inter + JetBrains Mono auto-hébergées via `next/font` (zéro appel à Google) |
+| Icônes | Sprite SVG unique (`public/icons/sprite.svg`), chargé à la demande |
+
+## Stack
+
+- **Next.js 16** (App Router, Turbopack, static export)
+- **React 19**
+- **TypeScript** strict
+- **Tailwind CSS v4** avec tokens `oklch` et `@theme inline`
+- **GitHub Actions** pour la CI et le déploiement GitHub Pages
+
+Prérequis : **Node.js ≥ 20.9** et npm.
 
 ## Démarrer
 
 ```bash
 npm install
 npm run dev        # http://localhost:3000
-npm run build      # build de production + 21 pages statiques
-npm start
-npm run lint       # tsc --noEmit
+npm run lint       # vérification TypeScript (tsc --noEmit)
+npm run build      # export statique dans ./out
+npm run preview    # sert ./out en local (npx serve out)
 ```
 
-Stack : Next.js 16.4 (App Router, Turbopack), React 19, TypeScript strict, Tailwind CSS v4.
+Le build de production ne nécessite aucune variable d'environnement en local : le site est servi à
+la racine (`http://localhost:3000`).
 
-## Structure
+## Mode sombre
+
+Le thème se change avec **une seule icône dans l'en-tête** :
+
+- en mode clair, l'icône affiche un **écran d'ordinateur** (`monitor`) ;
+- en mode sombre, elle affiche un **croissant de lune** (`moon`) ;
+- un clic bascule de l'un à l'autre, avec un état `aria-pressed` et un libellé dynamique.
+
+Fonctionnement :
+
+1. **Aucune préférence enregistrée** → le site suit le thème du système d'exploitation
+   (`prefers-color-scheme`) et reste synchronisé si l'OS change.
+2. **Clic sur l'icône** → la classe `.dark` ou `.light` est appliquée sur `<html>` et le choix est
+   stocké dans `localStorage` (clé `theme`).
+3. **Au chargement suivant** → un court script inline dans `<head>` applique la classe avant le
+   premier rendu : pas de flash clair avant l'hydratation.
+
+Les couleurs vivent dans `app/globals.css` sous forme de tokens `oklch` :
+
+```css
+:root { --bg: var(--l-bg); --fg: var(--l-fg); /* ... */ }
+:root.dark { color-scheme: dark; --bg: var(--d-bg); /* ... */ }
+@media (prefers-color-scheme: dark) { :root:not(.light) { /* ... */ } }
+```
+
+Pour changer la palette, modifiez `--l-*` (clair) et `--d-*` (sombre).
+
+## Personnaliser le template
+
+| Fichier | Contenu à remplacer |
+|---|---|
+| `lib/site.ts` | Nom, rôle, email, ville, URL publique, réseaux sociaux, stack |
+| `lib/content.ts` | Projets (`metrics`, `facets`, `links`) et articles |
+| `lib/pages-content.ts` | Contenus de `/uses`, `/bucket-list`, seed du guestbook, liens |
+| `app/globals.css` | Palette de marque (`--l-accent-*`, `--d-accent-*`) |
+| `public/icons/sprite.svg` | Icônes (recherche, lune, écran, flèches, copie, check) |
+| `app/layout.tsx` | Polices, métadonnées par défaut, `metadataBase` |
+| `components/work-section.tsx` | Couvertures projets (dégradés à remplacer par `next/image`) |
+
+Après avoir forké :
+
+1. mettez à jour `site.url` et `site.repo` dans `lib/site.ts` ;
+2. remplacez les textes et visuels factices ;
+3. faites pointer `metadataBase` (via `site.url`) vers votre domaine ou votre URL GitHub Pages.
+
+## Structure du projet
 
 ```
 app/
-  layout.tsx                  métadonnées, next/font, theme script anti-FOUC, noscript, palette
-  page.tsx                    les 6 sections de la home (RSC)
-  globals.css                 tokens oklch clair/sombre, @theme inline, .parallax, [data-reveal]
+  layout.tsx                  métadonnées, next/font, script anti-FOUC, noscript
+  page.tsx                    sections de la page d'accueil (RSC)
+  globals.css                 tokens oklch clair/sombre, @theme inline, utilitaires
   not-found.tsx               404
-  opengraph-image.tsx         OG image générée (ImageResponse, 1200×630)
-  sitemap.ts / robots.ts      SEO
-  feed.xml/route.ts           RSS statique
-  search-index.json/route.ts  index de recherche statique (force-static)
+  opengraph-image.tsx         image Open Graph générée (1200×630)
+  sitemap.ts / robots.ts      SEO statique
+  feed.xml/route.ts           flux RSS statique
+  search-index.json/route.ts  index de recherche statique
   uses/ services/ guestbook/ bucket-list/ links/
   work/[slug]/page.tsx        page projet (SSG + generateMetadata)
   writing/[slug]/page.tsx     page article (SSG + generateMetadata)
 components/
-  site-header.tsx             nav sticky, blur au scroll, Search, thème, ⌘K/Ctrl K détecté
-  command-palette.tsx         ⌘K + "/", fetch de l'index, ↑↓/Enter/Esc, body lock
-  theme-toggle.tsx            light → system → dark persisté (classes .light/.dark, aucun script)
-  parallax.tsx                rAF, --scroll / --pointer-x / --pointer-y, reduced-motion
-  reveal.tsx                  IntersectionObserver → data-visible (fallback no-JS)
-  work-section.tsx            8 filtres, carrousel snap, Go to <projet>, prev/next, aria-live
-  pricing-toggle.tsx          switch mensuel/annuel + chiffres roulants (odometer)
-  copy-email.tsx              Copy email (clipboard + aria-live)
-  reveal-photo.tsx            Reveal photo (aria-pressed)
-  guestbook.tsx               formulaire + persistance localStorage
-  page-shell.tsx              en-tête commun aux pages secondaires
-  icon.tsx                    <use href="/icons/sprite.svg#id">
+  site-header.tsx             navigation sticky + recherche + toggle de thème
+  theme-toggle.tsx            bascule clair/sombre (écran ↔ lune)
+  command-palette.tsx         palette ⌘K / Ctrl K / "/"
+  parallax.tsx                parallax scroll + pointeur (reduced-motion aware)
+  reveal.tsx                  révélation au scroll
+  work-section.tsx            filtres, carrousel, navigation projets
+  pricing-toggle.tsx          bascule mensuel/annuel avec chiffres roulants
+  copy-email.tsx              copie de l'email dans le presse-papiers
+  reveal-photo.tsx            révélation de la photo de profil
+  guestbook.tsx               formulaire persisté en localStorage
+  page-shell.tsx              en-tête commun des pages secondaires
+  icon.tsx                    <use href=".../sprite.svg#id">
 lib/
+  site.ts                     marque, navigation, pages, réseaux, stack
   content.ts                  modèle Project / Post + facettes de filtre
-  site.ts                     marque, nav, pages, socials, stack
-  pages-content.ts            uses, bucket list, guestbook seed, links
-  search-index.ts             projection des données → index de recherche
-public/icons/sprite.svg       sprite unique (search, sun, moon, monitor, arrows, copy, check)
+  pages-content.ts            contenus des pages secondaires
+  search-index.ts             projection des données vers l'index de recherche
+public/
+  icons/sprite.svg            sprite SVG unique
+  .nojekyll                   désactive Jekyll sur GitHub Pages
+.github/workflows/
+  ci.yml                      lint + build sur push et pull request
+  deploy.yml                  build et publication sur GitHub Pages
 ```
 
-## Correspondance avec PLAN.md
+## Déploiement GitHub Pages
 
-| Exigence | État | Implémentation |
-|---|---|---|
-| Next.js 16 App Router, RSC | ✅ | `app/` en server components, interactif isolé en `"use client"` |
-| CSS | ✅ | Tailwind v4 + tokens `@theme inline` sur variables CSS oklch |
-| Thème `dark:` | ✅ | `light-dark()` + `color-scheme` piloté par `.light` / `.dark` : suit l'OS sans JavaScript, aucun `<script>` en `<head>` (immunise l'hydratation contre les extensions) |
-| Fonts self-hosted | ✅ | `next/font` (Inter, JetBrains Mono) → woff2 servis depuis `/_next/static/media`, zéro appel Google |
-| Images AVIF | ✅ | `images.formats` + `opengraph-image.tsx` (PNG généré) ; covers projets encore en dégradés CSS |
-| Sprite SVG unique | ✅ | `public/icons/sprite.svg` + `<Icon />` |
-| `/search-index.json` | ✅ | route handler `force-static`, consommé par la palette |
-| Filtres ALL…UK | ✅ | `lib/content.ts` + `work-section.tsx` |
-| Carrousel + `Go to <projet>` | ✅ | scroll-snap + `scrollTo`, prev/next, état `aria-current` |
-| Palette ⌘K / Ctrl+K | ✅ | détection plateforme, navigation clavier, résultats groupés |
-| Parallax scroll + souris | ✅ | `parallax.tsx` + utilitaire `.parallax` avec `--depth` |
-| Toggle de tarifs à chiffres roulants | ✅ | `/services` — `pricing-toggle.tsx` (aucune section tarifs dans `outline.md`, donc page dédiée) |
-| Reveal photo | ✅ | `reveal-photo.tsx` |
-| Thème light/system/dark | ✅ | `theme-toggle.tsx` |
-| Ordre des sections home | ✅ | intro → nav → work → profil → writing → contact → footer |
-| Anti-copie | ✅ | contenu 100 % placeholder |
+Le projet est configuré pour un hébergement **entièrement statique** sur GitHub Pages.
 
-Hors `outline.md`, ajouté parce que présent sur le site source ou nécessaire au SEO :
-`/uses`, `/guestbook`, `/bucket-list`, `/links`, `/services`, `sitemap.xml`, `robots.txt`, `feed.xml`,
-`opengraph-image`, 404.
+### 1. Activer Pages
 
-## NaviGarde IA — export PDF réglementaire & versioning (EF-35)
+Dans le dépôt : **Settings → Pages → Build and deployment → Source : GitHub Actions**.
 
-Module isolé, sans effet sur le rendu du portfolio. Routes montées sous `/api/v1/reports`.
+Aucune branche `gh-pages` n'est nécessaire : le workflow `deploy.yml` construit `out/` puis publie
+l'artefact avec `actions/deploy-pages`.
 
-```
-src/ai/reportTemplate.js        structure administrative (en-tête, métadonnées, constatations, sceau)
-src/server/report-types.ts      types Report / Finding / ReportPatch
-src/server/report-store.ts      dépôt en mémoire + SHA-256 canonique + clone de version
-src/server/report-pdf.ts        rendu A4 pdf-lib (en-tête, tableau, constatations, sceau, QR)
-src/server/pdf-kit.ts           wrap texte, sections, filets (polices standard = pas de layout auto)
-src/server/http.ts              origine publique (QR), erreurs JSON
+### 2. URLs et base path
 
-app/api/v1/reports/route.ts               GET liste · POST création (201, Location)
-app/api/v1/reports/[id]/route.ts          GET · PATCH (EF-35)
-app/api/v1/reports/[id]/download/route.ts GET → application/pdf
-app/verify/[id]/page.tsx                  page publique cible du QR (noindex)
+Le workflow détecte automatiquement le type de site :
 
-tests/smoke-pdf.mjs             34 assertions bout-en-bout
-```
+- **Site projet** (`https://<user>.github.io/<repo>/`) → `NEXT_PUBLIC_BASE_PATH=/<repo>` ;
+- **Site utilisateur** (`https://<user>.github.io/`) → aucun base path.
+
+En local, laissez `NEXT_PUBLIC_BASE_PATH` vide. Pour reproduire le build Pages à la main :
 
 ```bash
-npm run build && npm start     # terminal 1
-npm run test:smoke             # terminal 2 (BASE_URL, défaut http://localhost:3000)
-node tests/smoke-pdf.mjs --base http://localhost:3111
+# Windows PowerShell
+$env:NEXT_PUBLIC_BASE_PATH="/portfolio-rebuild"; npm run build
+# macOS / Linux
+NEXT_PUBLIC_BASE_PATH=/portfolio-rebuild npm run build
 ```
 
-### Contrat
+Le préfixe est appliqué aux pages, aux assets `_next`, au sprite d'icônes et à l'index de
+recherche. Si votre dépôt s'appelle `<user>.github.io`, n'utilisez aucun base path.
 
-| Méthode | Route | Comportement |
+### 3. Domaine personnalisé
+
+1. ajoutez un fichier `public/CNAME` contenant votre domaine ;
+2. configurez le DNS (enregistrement `CNAME` vers `<user>.github.io`) ;
+3. mettez à jour `site.url` avec `https://votre-domaine.com` ;
+4. laissez `NEXT_PUBLIC_BASE_PATH` vide.
+
+### 4. Vérifier en local
+
+```bash
+npm run build
+npx serve out        # ou : npm run preview
+```
+
+## CI/CD
+
+Deux workflows GitHub Actions vivent dans `.github/workflows/` :
+
+| Workflow | Déclencheur | Rôle |
 |---|---|---|
-| `GET` | `/api/v1/reports` | liste (id, référence, version, statut, hash) |
-| `POST` | `/api/v1/reports` | crée v1 en `brouillon` (ou `validé`) |
-| `GET` | `/api/v1/reports/:id` | rapport complet + historique |
-| `PATCH` | `/api/v1/reports/:id` | brouillon → mise à jour en place (200) ; **validé → clone v(n+1) en `brouillon` (201)**, l'original reste intact et pointe via `supersededBy` |
-| `GET` | `/api/v1/reports/:id/download` | PDF généré à la volée |
+| `ci.yml` | push sur `master`, pull requests | `npm ci` → `tsc --noEmit` → `next build` |
+| `deploy.yml` | push sur `master`, lancement manuel | build statique → upload de `out/` → publication Pages |
 
-En-têtes de traçabilité : `X-Report-Reference`, `X-Report-Version`, `X-Report-Hash`,
-`X-Versioning: in-place|cloned`, `Content-Disposition: attachment; filename="navigarde-<ref>-v<n>.pdf"`.
+Points clés :
 
-### PDF
+- Node.js 22 avec cache npm ;
+- permissions minimales (`contents: read`, `pages: write`, `id-token: write`) ;
+- concurrence limitée pour éviter deux déploiements simultanés ;
+- `touch out/.nojekyll` pour que GitHub Pages serve les dossiers `_next` ;
+- environnement `github-pages` avec l'URL publiée en sortie.
 
-- En-tête officiel (bandeau, unité, adresse), référence et version en clair.
-- Métadonnées administratives sur deux colonnes, bandeau de synthèse (total / critiques / majeures / mineures).
-- Constatations numérotées : sévérité colorée, détail justifié, preuve en police monospace, confiance IA.
-- **Sceau de souveraineté numérique** en pied de page : empreinte SHA-256 en monospace, URL de vérification, QR généré par `qrcode`, horodatage.
-- Pagination, `Content-Type: application/pdf`, PDF parseable (titres PDF renseignés).
-- `npm run test:smoke` → 34/34 : type MIME, signature `%PDF-`, parsing pdf-lib, versioning, 404/400.
+Un pull request cassé bloque donc le merge ; un push sur `master` déploie automatiquement.
 
-## Vérifications
+## SEO, performance et accessibilité
 
+- **SEO** : `sitemap.xml` et `robots.txt` générés au build, URL canonique, Open Graph + Twitter
+  Card, image OG générée en PNG, flux RSS des articles.
+- **Performance** : pages prérendues, polices auto-hébergées en `woff2`, images non optimisées
+  (contrainte du static export) mais formats AVIF/WebP déclarés, JavaScript client limité aux
+  composants interactifs.
+- **Accessibilité** : lien d'évitement, navigation clavier complète, `aria-*` sur les contrôles,
+  `aria-live` pour les mises à jour, focus visible, respect de `prefers-reduced-motion`,
+  contrastes issus des tokens `oklch`.
 
-```
-next build      → 21 routes statiques, 0 erreur TS
-/  /uses  /services  /guestbook  /bucket-list  /links
-/work/{atlas,relay,ledger,prism,signal}   /writing/{3 posts}
-/search-index.json  /sitemap.xml (14 urls)  /robots.txt  /feed.xml (3 items)  /opengraph-image (png)
-404 sur route inconnue
-```
+## Scripts
 
-## Reste à faire (contenu, pas code)
+| Commande | Description |
+|---|---|
+| `npm run dev` | serveur de développement Next.js |
+| `npm run build` | build de production + export statique dans `out/` |
+| `npm run preview` | sert le dossier `out/` localement |
+| `npm run lint` | vérification TypeScript (`tsc --noEmit`) |
 
-- [ ] `lib/site.ts` : nom, email, ville, URL réelle, réseaux (`site.url` sert au sitemap/robots/OG)
-- [ ] `lib/content.ts` : vrais projets et articles (`metrics`, `facets`, `links`)
-- [ ] `lib/pages-content.ts` : uses, bucket list, liens
-- [ ] `app/globals.css` : palette de marque (`--accent-*`), logo
-- [ ] Couvertures projets via `next/image` (remplacer les dégradés de `work-section.tsx`)
-- [ ] Guestbook : remplacer localStorage par une server action + base de données
-- [ ] Domaine réel dans `metadataBase` (`app/layout.tsx`) avant mise en ligne
+## Contribuer
+
+Les contributions sont bienvenues :
+
+1. forkez le dépôt et créez une branche (`feat/...`, `fix/...`) ;
+2. lancez `npm run lint` et `npm run build` avant de pousser ;
+3. ouvrez une pull request en décrivant le changement et son impact visuel.
+
+Les bugs et idées se discutent dans les issues du dépôt.
+
+## Licence
+
+Distribué sous [licence MIT](./LICENSE). Vous pouvez l'utiliser, le modifier et le redistribuer,
+y compris pour un usage commercial, en conservant la mention de copyright.

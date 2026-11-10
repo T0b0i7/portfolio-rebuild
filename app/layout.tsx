@@ -22,7 +22,7 @@ const jetbrains = JetBrains_Mono({
 const description = `${site.role} — ${site.headline}.`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://example.com"),
+  metadataBase: new URL(site.url),
   title: {
     default: `${site.name} — ${site.role}`,
     template: `%s — ${site.name}`,
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     siteName: site.name,
   },
   twitter: { card: "summary_large_image", creator: "@example" },
-  alternates: { canonical: "/" },
+  alternates: { canonical: "./" },
 };
 
 export const viewport: Viewport = {
@@ -50,6 +50,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${jetbrains.variable}`} suppressHydrationWarning><head>
+        {/* Applies a stored theme before paint so dark mode never flashes light. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light"){document.documentElement.classList.add(t)}}catch(e){}`,
+          }}
+        />
         <noscript>
           <style>{`[data-reveal]{opacity:1 !important;transform:none !important}`}</style>
         </noscript>

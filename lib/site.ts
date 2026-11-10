@@ -4,7 +4,8 @@ export const site = {
   headline: "Complex web apps, from pixels to pipelines",
   location: "Remote · GMT+1",
   email: "hello@example.com",
-  url: "https://example.com",
+  url: "https://t0b0i7.github.io/portfolio-rebuild",
+  repo: "https://github.com/T0b0i7/portfolio-rebuild",
   description:
     "Full-stack engineer. Typed end to end: system design, resilient APIs, and interfaces that stay fast under load.",
   intro:
