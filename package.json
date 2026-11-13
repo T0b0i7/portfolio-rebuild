@@ -1,7 +1,7 @@
 {
-  "name": "portfolio-rebuild",
+  "name": "facet",
   "version": "1.0.0",
-  "description": "Open-source portfolio template built with Next.js 16, static export, GitHub Pages and a monitor/moon dark mode toggle.",
+  "description": "Facet — open-source portfolio template built with Next.js 16, static export, GitHub Pages and a monitor/moon dark mode toggle.",
   "license": "MIT",
   "private": true,
   "engines": {
