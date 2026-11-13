@@ -11,6 +11,10 @@ clavier et un **mode sombre** déclenché par une icône qui bascule de l'écran
 
 Site de démonstration : **https://t0b0i7.github.io/portfolio-rebuild/**
 
+[![Aperçu de la démo](video/poster.jpg)](video/portfolio-demo.mp4)
+
+▶ **[Voir la démo — MP4, 15 s, 1080p](video/portfolio-demo.mp4)** (thème clair → sombre, projets, palette `⌘K`)
+
 ---
 
 ## Sommaire
@@ -256,6 +260,16 @@ Un pull request cassé bloque donc le merge ; un push sur `master` déploie auto
 | `npm run dev` | serveur de développement Next.js |
 | `npm run build` | build de production + export statique dans `out/` |
 | `npm run preview` | sert le dossier `out/` localement |
+| `npm run video` | régénère `video/portfolio-demo.mp4` (démo de 15 s, 1080p) |
+
+La génération vidéo est optionnelle et nécessite Playwright + ffmpeg :
+
+```bash
+npm i -D playwright ffmpeg-static
+npx playwright install chromium
+npm run build
+npm run video
+```
 | `npm run lint` | vérification TypeScript (`tsc --noEmit`) |
 
 ## Contribuer
