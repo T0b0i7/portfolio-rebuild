@@ -1,7 +1,7 @@
 {
-  "name": "facet",
+  "name": "monograph",
   "version": "1.0.0",
-  "description": "Facet — open-source portfolio template built with Next.js 16, static export, GitHub Pages and a monitor/moon dark mode toggle.",
+  "description": "Monograph — open-source portfolio template built with Next.js 16, static export, GitHub Pages and a monitor/moon dark mode toggle.",
   "license": "MIT",
   "private": true,
   "engines": {

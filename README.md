@@ -1,25 +1,26 @@
-# Facet
+# Monograph
 
 [![CI](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/ci.yml/badge.svg)](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/ci.yml)
 [![Deploy](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/deploy.yml/badge.svg)](https://github.com/T0b0i7/portfolio-rebuild/actions/workflows/deploy.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org)
 
-**Facet** est un template de portfolio **open source**, 100 % statique, prêt pour
-**GitHub Pages**. Plusieurs facettes pour un seul site — projets, écrits, usages, liens — et un
-thème clair/sombre qui bascule d'un clic sur une icône passant de l'écran à la lune.
+**Monograph** est un template de portfolio **open source**, 100 % statique, conçu pour
+**GitHub Pages**. Une monographie personnelle : projets, écrits, usages et liens réunis dans un site
+sobre et rapide, avec un thème clair/sombre qui bascule d'un clic sur une icône passant de l'écran à
+la lune.
 
 - **Démo en ligne** : https://t0b0i7.github.io/portfolio-rebuild/
 - **Vidéo de démo** (15 s, 1080p) : [`video/portfolio-demo.mp4`](video/portfolio-demo.mp4)
 
-[![Aperçu de Facet](video/poster.jpg)](video/portfolio-demo.mp4)
+[![Aperçu de Monograph](video/poster.jpg)](video/portfolio-demo.mp4)
 
 Aucune base de données, aucun serveur : le build produit un dossier `out/` servi tel quel par
 GitHub Pages. La CI vérifie chaque pull request, le déploiement part automatiquement de `master`.
 
 ## Sommaire
 
-- [Pourquoi Facet](#pourquoi-facet) · [Fonctionnalités](#fonctionnalités) · [Stack](#stack)
+- [Pourquoi Monograph](#pourquoi-monograph) · [Fonctionnalités](#fonctionnalités) · [Stack](#stack)
 - [Démarrer](#démarrer) · [Architecture](#architecture) · [Modèle de contenu](#modèle-de-contenu)
 - [Mode sombre](#mode-sombre) · [Personnalisation](#personnalisation)
 - [Déploiement GitHub Pages](#déploiement-github-pages) · [CI/CD](#cicd)
@@ -28,11 +29,11 @@ GitHub Pages. La CI vérifie chaque pull request, le déploiement part automatiq
 
 ---
 
-## Pourquoi Facet
+## Pourquoi Monograph
 
-Un portfolio montre plusieurs **facettes** d'un même parcours : le travail, les idées, la méthode,
-les outils, les liens. Facet rassemble tout cela dans une base statique rapide, sans backend, qui
-se déploie gratuitement et se personnalise en éditant quelques fichiers TypeScript.
+Un portfolio se lit comme une **monographie** : un document unique qui rassemble le travail, les
+idées, la méthode, les outils et les liens d'un parcours. Monograph fournit cette base statique,
+rapide et sans backend, personnalisable en éditant quelques fichiers TypeScript.
 
 ## Fonctionnalités
 
